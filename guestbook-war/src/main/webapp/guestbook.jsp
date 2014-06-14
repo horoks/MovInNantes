@@ -104,13 +104,14 @@
             jQuery("#calculroute").click(function() {
                 calculate();
             });
-
+/*
             jQuery("#calculroute").click(function() {
                 $.get("/test", function(data) {
                     $(".result").html(data);
                     alert("Load was performed.");
                 });
             });
+*/
         </script>
     </body>
 </html>
