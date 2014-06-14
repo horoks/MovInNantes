@@ -45,8 +45,8 @@ public class AjaxServlet extends HttpServlet {
                 }
                 reader.close();
 
-                JSONObject jsonObj = new JSONObject(res);
-                String count = jsonObj.getInt("count");
+//                JSONObject jsonObj = new JSONObject(res);
+//                String count = jsonObj.getInt("count");
              //   resp.getWriter().println(response.toString());
 
             } 

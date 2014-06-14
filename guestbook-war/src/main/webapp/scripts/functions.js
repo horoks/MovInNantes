@@ -92,15 +92,7 @@ initialize = function() {
 
     map = new google.maps.Map(document.getElementById('map'), myOptions);
 
-
-    var marker = new google.maps.Marker({
-        position: latLng,
-        map: map,
-        title: "Vous etes ici",
-        type : "first",
-    });
-    markers.created.push(marker);
-
+  
     direction = new google.maps.DirectionsRenderer({
         map: map,
         panel: document.getElementById("panel")
@@ -117,7 +109,7 @@ calculate = function() {
     var travelmode;
     origin = jQuery('#origine').val(); // Le point départ
     destination = jQuery('#destination').val(); // Le point d'arrivé
-    /*         
+    
     switch(jQuery('input[name=travelMode]:checked').val()){
         case "driving" :
             travelmode = google.maps.DirectionsTravelMode.DRIVING;
@@ -129,8 +121,8 @@ calculate = function() {
             travelmode = google.maps.DirectionsTravelMode.WALKING;
             break;
     }
-    */
-    travelmode = google.maps.DirectionsTravelMode.DRIVING;
+    
+    //travelmode = google.maps.DirectionsTravelMode.DRIVING;
     if (origin && destination) {
         var request = {
             origin: origin,
