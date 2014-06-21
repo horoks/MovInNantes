@@ -9,7 +9,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <appengine.target.version>1.9.6</appengine.target.version>
     </properties>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+    </dependencies>
     <build>
         <pluginManagement>
             <plugins>
