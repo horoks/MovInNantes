@@ -3,7 +3,9 @@
     <application>guestbook</application>
     <version>${appengine.app.version}</version>
     <threadsafe>true</threadsafe>
-    
+    <resource-files>
+        <include path="/**.csv" />
+    </resource-files>
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>

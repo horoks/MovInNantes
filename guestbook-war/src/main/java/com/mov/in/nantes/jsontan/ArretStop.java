@@ -11,7 +11,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author etienne
  */
-class ArretStop {
+public class ArretStop {
 
     @JsonProperty("libelle")
     String libelle;
@@ -19,4 +19,18 @@ class ArretStop {
     String accessible;
     @JsonProperty("danger")
     String danger;
+
+    public String getLibelle() {
+        return libelle;
+    }
+
+    public String getAccessible() {
+        return accessible;
+    }
+
+    public String getDanger() {
+        return danger;
+    }
+    
+    
 }

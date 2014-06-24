@@ -11,10 +11,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author etienne
  */
-class Etapes {
+public class Etapes {
 
     @JsonProperty("marche")
-    String marche;
+    Boolean marche;
     @JsonProperty("heureDepart")
     String heureDepart;
     @JsonProperty("heureArrivee")
@@ -25,4 +25,29 @@ class Etapes {
     ArretStop arretStop;
     @JsonProperty("ligne")
     Ligne ligne;
+
+    public Boolean isMarche() {
+        return marche;
+    }
+
+    public String getHeureDepart() {
+        return heureDepart;
+    }
+
+    public String getHeureArrivee() {
+        return heureArrivee;
+    }
+
+    public String getDuree() {
+        return duree;
+    }
+
+    public ArretStop getArretStop() {
+        return arretStop;
+    }
+
+    public Ligne getLigne() {
+        return ligne;
+    }
+
 }

@@ -1,7 +1,11 @@
-package com.google.appengine.demos.guestbook;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mov.in.nantes.tan;
 
-import com.mov.in.nantes.jsontan.Traject;
-import com.mov.in.nantes.tanfiles.TanFileParser;
+import com.mov.in.nantes.jsontan.ResponsePlace;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,35 +15,32 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.Iterator;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 
-public class AjaxServlet extends HttpServlet {
+/**
+ *
+ * @author etienne
+ */
+public class AdressTanservlet extends HttpServlet {
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        
-        String depart = URLEncoder.encode(req.getParameter("depart"), "UTF-8");
-        String arrive = URLEncoder.encode(req.getParameter("arrive"), "UTF-8");
-        String type = URLEncoder.encode("0", "UTF-8");
-        String accessible = URLEncoder.encode("0", "UTF-8");
-        String temps = URLEncoder.encode("2014-06-26 14:55", "UTF-8");
-        String retour = URLEncoder.encode("0", "UTF-8");
+        String adress = URLEncoder.encode(req.getParameter("adress"), "UTF-8");
 
         try {
-            URL url = new URL("https://www.tan.fr/ewp/mhv.php/itineraire/resultat.json");
+            URL url = new URL("https://www.tan.fr/ewp/mhv.php/itineraire/address.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            
-            String query = String.format("depart=%s&arrive=%s&type=%s&accessible=%s&temps=%s&retour=%s",
-                    depart, arrive, type, accessible, temps, retour);
+            connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            String query = String.format("nom=%s&prefix=depart",
+                    adress);
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(query);
             writer.close();
@@ -53,20 +54,13 @@ public class AjaxServlet extends HttpServlet {
                 }
                 reader.close();
                 //create ObjectMapper instance
-                ObjectMapper objectMapper = new ObjectMapper();
-
+//                ObjectMapper objectMapper = new ObjectMapper();
+//
                 //convert json string to object
-                Collection<Traject> trajets = objectMapper.readValue(response, TypeFactory.defaultInstance().constructParametricType(
-                        Collection.class, Traject.class));
-                
-                Iterator i = trajets.iterator();
-                resp.setContentType("text/plain");
-                Traject t = (Traject) i.next();
-                TanFileParser tfp = new TanFileParser();
-               
-                resp.getWriter().println(objectMapper.writeValueAsString(tfp.getTraject(t)));
-             //   resp.getWriter().println(objectMapper.writeValueAsString(t.getEtapes()));
-                //resp.getWriter().println(connection.getResponseCode());
+//                Collection<ResponsePlace> reponseplaces = objectMapper.readValue(response, TypeFactory.defaultInstance().constructParametricType(
+//                        Collection.class, ResponsePlace.class));
+                resp.setContentType("application/json");
+                resp.getWriter().println(response);
             } else {
                 resp.setContentType("text/plain");
                 resp.getWriter().println(connection.getResponseCode());

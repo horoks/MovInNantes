@@ -5,7 +5,7 @@ var calculate;
 var direction;
 var directionDisplay;
 var destination;
-var latLng = new google.maps.LatLng(47.2092934, -1.4866354000000683);
+var latLng = new google.maps.LatLng(47.2188, -1.55358);
 
 var markers = new Object();
 markers["created"] = new Array();
@@ -67,7 +67,7 @@ initialize = function() {
         center: latLng, // Coordonnées de départ de la carte de type latLng 
         mapTypeId: google.maps.MapTypeId.ROADMAP, // Type de carte, différentes valeurs possible HYBRID, ROADMAP, SATELLITE, TERRAIN
         maxZoom: 20,
-        disableDefaultUI: true,
+        disableDefaultUI: false,
         scrollwheel: true,
         zoomControl: true,
         zoomControlOptions: {
@@ -92,7 +92,6 @@ initialize = function() {
 
     map = new google.maps.Map(document.getElementById('map'), myOptions);
 
-
     direction = new google.maps.DirectionsRenderer({
         map: map,
         panel: document.getElementById("panel")
@@ -103,13 +102,12 @@ initialize = function() {
 
 };
 
-
 calculate = function() {
 
     var travelmode;
-    origin = jQuery('#origine').val(); // Le point départ
-    destination = jQuery('#destination').val(); // Le point d'arrivé
-
+    origin = jQuery('#pageslide #origine').val(); // Le point départ
+    destination = jQuery('#pageslide #destination').val(); // Le point d'arrivé
+    console.log(origin);
     switch (jQuery('input[name=travelMode]:checked').val()) {
         case "driving" :
             travelmode = google.maps.DirectionsTravelMode.DRIVING;
@@ -135,7 +133,7 @@ calculate = function() {
         directionsService.route(request, function(response, status) { // Envoie de la requête pour calculer le parcours
             if (status == google.maps.DirectionsStatus.OK) {
                 console.log(response);
-                direction.setOptions({suppressMarkers: true,preserveViewport: true});
+                direction.setOptions({suppressMarkers: true});
                 direction.setDirections(response); // Trace l'itinéraire sur la carte et les différentes étapes du parcours
                 var bounds = response.routes[0].bounds;
                 map.fitBounds(bounds);
@@ -193,6 +191,34 @@ function placeMarker(map, lat, lng, title, terms, icon) {
     if (icon != 'default' && icon != '')
         args['icon'] = icon;
     return new google.maps.Marker(args);
+}
+
+function setPolylines(coordonates) {
+
+
+
+    var parcoursBus = new Array();
+
+    for (var i in coordonates) {
+        //alert(coordonates[i]);
+        for (var j in coordonates[i]) {
+            parcoursBus.push(new google.maps.LatLng(coordonates[i][j].lattitude, coordonates[i][j].longitude));
+        }
+    }
+//new google.maps.LatLng(46.781367900048, 6.6401992834884),
+    //chemin du tracé du futur polyline
+
+
+    var traceParcoursBus = new google.maps.Polyline({
+        path: parcoursBus, //chemin du tracé
+        strokeColor: "#FF0000", //couleur du tracé
+        strokeOpacity: 1.0, //opacité du tracé
+        strokeWeight: 2//grosseur du tracé
+    });
+    traceParcoursBus.setMap(null);
+//lier le tracé à la carte
+//ceci permet au tracé d'être affiché sur la carte
+    traceParcoursBus.setMap(map);
 }
 
 initialize();

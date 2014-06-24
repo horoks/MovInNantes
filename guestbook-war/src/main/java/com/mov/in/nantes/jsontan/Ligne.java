@@ -11,7 +11,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author etienne
  */
-class Ligne {
+public class Ligne {
 
     @JsonProperty("numLigne")
     String numLigne;
@@ -19,4 +19,18 @@ class Ligne {
     String typeLigne;
     @JsonProperty("terminus")
     String terminus;
+
+    public String getNumLigne() {
+        return numLigne;
+    }
+
+    public String getTypeLigne() {
+        return typeLigne;
+    }
+
+    public String getTerminus() {
+        return terminus;
+    }
+    
+    
 }

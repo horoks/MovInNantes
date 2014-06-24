@@ -17,13 +17,14 @@
         <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
         <script type="text/javascript" src="/scripts/jquery-1.11.1.min.js"></script>
         <link rel="stylesheet" href="/stylesheets/jquery.pageslide.css">
+
     </head>
 
     <body>
         <div id="page" class="bg-nantes">
 
             <header class="header-menu">
-                <a href="#modal" id="resume_btn" >Toggle menu</a>
+                <a href="#modal" class="second">Link text</a>
                 <%
                     UserService userService = UserServiceFactory.getUserService();
                     User user = userService.getCurrentUser();
@@ -42,21 +43,16 @@
                         }
                     %>
             </header>
-            <sidebar>
-                <div id="modal" style="display:none">
-                    <!-- Your content -->
-                    <ul>
-                        <li>
-                            <input id="origine" type="text" name="origine" value=""/>
-                            <input id="destination" type="text" name="destination" value=""/>
-                            <input id="voiture" type="radio" name="travelMode" value="driving" checked=""><label for="voiture">En voiture</label>            
-                            <input id="pied" type="radio" name="travelMode" value="walking"><label for="pied">A pied</label>
-                            <input id="velo" type="radio" name="travelMode" value="bicycling"><label for="velo">A vélo</label>
-                            <button id="calculroute" > Click gros !</button>
-                        </li>
-                    </ul>
-                </div>
-            </sidebar>
+            <div id="modal" style="display:none">
+                <div>
+                    <input id="origine" type="text" name="origine" value=""/>
+                    <input id="destination" type="text" name="destination" value=""/>
+                    <input id="voiture" type="radio" name="travelMode" value="driving" checked=""><label for="voiture">En voiture</label>            
+                    <input id="pied" type="radio" name="travelMode" value="walking"><label for="pied">A pied</label>
+                    <input id="velo" type="radio" name="travelMode" value="bicycling"><label for="velo">A vélo</label>
+                    <button id="calculroute" > Click gros !</button>
+                </div>        
+            </div>
             <section>
                 <div id="map" style="height:100%;"></div>
             </section>
@@ -66,15 +62,51 @@
         <script type="text/javascript" src="/scripts/functions.js"></script>
         <script src="/scripts/jquery.pageslide.min.js"></script>
         <script>
+
+            $(".second").pageslide();
             jQuery("#calculroute").click(function() {
                 calculate();
             });
             jQuery("#calculroute").click(function() {
-                $.get("/test", function(data) {
-                    //  $(".result").html(data);
+                var adressResponse = Array();
+
+                jQuery.ajax({
+                    url: '/adresstan'
+                            + '?adress='
+                            + jQuery('#pageslide #origine').val(),
+                    success: function(data) {
+                            alert(data[0].lieux.id);
+                            adressResponse["depart"]["code"] = data[0].lieux.id;
+                    },
+                    async: false
                 });
+                
+                jQuery.ajax({
+                    url: '/adresstan'
+                            + '?adress='
+                            + jQuery('#pageslide #destination').val(),
+                    success: function(data) {
+                            alert(data[0]);
+                            adressResponse["arrive"]["code"] = data[0].lieux.id;
+                    },
+                    async: false
+                });
+                
+               /* $.get("/adresstan", {adress: jQuery('#pageslide #origine').val()}, function(data) {
+                    // adressResponse["depart"]["code"] = data[0].lieux[0].id;
+                    alert(data);
+                });
+
+                $.get("/adresstan", {adress: jQuery('#pageslide #destination').val()}, function(data) {
+                    // adressResponse["arrive"]["code"] = data[0].lieux[0].id;
+                });
+                */
+                $.post("/test", {depart: adressResponse["depart"]["code"], arrive: adressResponse["arrive"]["code"]}, function(data) {
+                    setPolylines(data);
+                }, "json");
             });
-            $("#resume_btn").pageslide();
+
+
         </script>
     </body>
 </html>

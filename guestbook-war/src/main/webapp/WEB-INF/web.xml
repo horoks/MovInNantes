@@ -12,6 +12,14 @@
         <servlet-name>ajax</servlet-name>
         <servlet-class>com.google.appengine.demos.guestbook.AjaxServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>adresstan</servlet-name>
+        <servlet-class>com.mov.in.nantes.tan.AdressTanservlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>adresstan</servlet-name>
+        <url-pattern>/adresstan</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>sign</servlet-name>
         <url-pattern>/sign</url-pattern>
