@@ -16,6 +16,22 @@
         <servlet-name>adresstan</servlet-name>
         <servlet-class>com.mov.in.nantes.tan.AdressTanservlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ParkingServlet</servlet-name>
+        <servlet-class>com.move.in.nantes.cars.ParkingServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SaveFavoritesServlet</servlet-name>
+        <servlet-class>com.move.in.nantes.favorites.SaveFavoritesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RetrieveFavoritesServlet</servlet-name>
+        <servlet-class>com.move.in.nantes.favorites.RetrieveFavoritesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ParkingServlet</servlet-name>
+        <url-pattern>/ParkingServlet</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>adresstan</servlet-name>
         <url-pattern>/adresstan</url-pattern>
@@ -31,6 +47,14 @@
     <servlet-mapping>
         <servlet-name>ajax</servlet-name>
         <url-pattern>/test</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SaveFavoritesServlet</servlet-name>
+        <url-pattern>/SaveFavoritesServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RetrieveFavoritesServlet</servlet-name>
+        <url-pattern>/RetrieveFavoritesServlet</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>guestbook.jsp</welcome-file>

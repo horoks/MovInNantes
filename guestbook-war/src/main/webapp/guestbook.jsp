@@ -24,34 +24,40 @@
         <div id="page" class="bg-nantes">
 
             <header class="header-menu">
-                <a href="#modal" class="second">Link text</a>
+                <a href="#modal" class="search"></a>
                 <%
                     UserService userService = UserServiceFactory.getUserService();
                     User user = userService.getCurrentUser();
                     if (user != null) {
                         pageContext.setAttribute("user", user);
                 %>
-                <p>Hello, ${fn:escapeXml(user.nickname)}! (You can
-                    <a href="<%= userService.createLogoutURL(request.getRequestURI())%>">sign out</a>.)</p>
+                <p>${fn:escapeXml(user.nickname)}! (
+                    <a href="<%= userService.createLogoutURL(request.getRequestURI())%>">Se déconnecter</a>.)</p>
                     <%
                     } else {
                     %>
-                <p>Hello!
-                    <a href="<%= userService.createLoginURL(request.getRequestURI())%>">Sign in</a>
-                    to include your name with greetings you post.</p>
-                    <%
-                        }
-                    %>
+                <p><a href="<%= userService.createLoginURL(request.getRequestURI())%>">Se connecter avec votre compte Google.</a></p>
+                <%
+                    }
+                %>
+                <div id="result-display"></div>
             </header>
             <div id="modal" style="display:none">
-                <div>
-                    <input id="origine" type="text" name="origine" value=""/>
-                    <input id="destination" type="text" name="destination" value=""/>
+                <div class="search-bar">
+                    <input id="origine" type="text" name="origine" placeholder="Adresse de départ" value=""/>
+                    <input id="destination" type="text" name="destination" placeholder="Adresse de déstination" value=""/>
                     <input id="voiture" type="radio" name="travelMode" value="driving" checked=""><label for="voiture">En voiture</label>            
                     <input id="pied" type="radio" name="travelMode" value="walking"><label for="pied">A pied</label>
                     <input id="velo" type="radio" name="travelMode" value="bicycling"><label for="velo">A vélo</label>
-                    <button id="calculroute" > Click gros !</button>
-                </div>        
+                    <input id="tan" type="radio" name="travelMode" value="tan"><label for="tan">Transport en commun</label>
+                    <button id="calculroute" > rechercher</button>
+                </div>
+                <% if (user != null) { %>
+                <div id="fav">
+                    <h2>Favoris</h2>
+                    <button class="save_fav" >Sauvegarder</button>
+                </div>
+                <% }  %>    
             </div>
             <section>
                 <div id="map" style="height:100%;"></div>
@@ -62,51 +68,22 @@
         <script type="text/javascript" src="/scripts/functions.js"></script>
         <script src="/scripts/jquery.pageslide.min.js"></script>
         <script>
-
-            $(".second").pageslide();
+            <% if (user != null) { %>
+            $.get("/RetrieveFavoritesServlet", function(data) {
+                for (var i in data){
+                    $("#fav").append("<p>De : "+data[i].departure+"</p>");
+                    $("#fav").append("<p>A : "+data[i].arrival+"</p><br/>");
+                }
+            });
+            <% }%>
+            $(".search").pageslide();
             jQuery("#calculroute").click(function() {
                 calculate();
             });
-            jQuery("#calculroute").click(function() {
-                var adressResponse = Array();
 
-                jQuery.ajax({
-                    url: '/adresstan'
-                            + '?adress='
-                            + jQuery('#pageslide #origine').val(),
-                    success: function(data) {
-                            alert(data[0].lieux.id);
-                            adressResponse["depart"]["code"] = data[0].lieux.id;
-                    },
-                    async: false
-                });
-                
-                jQuery.ajax({
-                    url: '/adresstan'
-                            + '?adress='
-                            + jQuery('#pageslide #destination').val(),
-                    success: function(data) {
-                            alert(data[0]);
-                            adressResponse["arrive"]["code"] = data[0].lieux.id;
-                    },
-                    async: false
-                });
-                
-               /* $.get("/adresstan", {adress: jQuery('#pageslide #origine').val()}, function(data) {
-                    // adressResponse["depart"]["code"] = data[0].lieux[0].id;
-                    alert(data);
-                });
-
-                $.get("/adresstan", {adress: jQuery('#pageslide #destination').val()}, function(data) {
-                    // adressResponse["arrive"]["code"] = data[0].lieux[0].id;
-                });
-                */
-                $.post("/test", {depart: adressResponse["depart"]["code"], arrive: adressResponse["arrive"]["code"]}, function(data) {
-                    setPolylines(data);
-                }, "json");
+            jQuery(".save_fav").click(function() {
+                $.post("/SaveFavoritesServlet", {origine: jQuery('#pageslide #origine').val(), destination: jQuery('#pageslide #destination').val()});
             });
-
-
         </script>
     </body>
 </html>

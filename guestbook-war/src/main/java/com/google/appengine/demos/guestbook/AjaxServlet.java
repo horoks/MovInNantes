@@ -10,6 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.servlet.http.HttpServlet;
@@ -22,13 +25,16 @@ public class AjaxServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        //get current date time with Calendar()
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, 10);
         
         String depart = URLEncoder.encode(req.getParameter("depart"), "UTF-8");
         String arrive = URLEncoder.encode(req.getParameter("arrive"), "UTF-8");
         String type = URLEncoder.encode("0", "UTF-8");
         String accessible = URLEncoder.encode("0", "UTF-8");
-        String temps = URLEncoder.encode("2014-06-26 14:55", "UTF-8");
+        String temps = URLEncoder.encode(dateFormat.format(cal.getTime()), "UTF-8");
         String retour = URLEncoder.encode("0", "UTF-8");
 
         try {
@@ -37,7 +43,7 @@ public class AjaxServlet extends HttpServlet {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            
+
             String query = String.format("depart=%s&arrive=%s&type=%s&accessible=%s&temps=%s&retour=%s",
                     depart, arrive, type, accessible, temps, retour);
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
@@ -58,14 +64,14 @@ public class AjaxServlet extends HttpServlet {
                 //convert json string to object
                 Collection<Traject> trajets = objectMapper.readValue(response, TypeFactory.defaultInstance().constructParametricType(
                         Collection.class, Traject.class));
-                
+
                 Iterator i = trajets.iterator();
                 resp.setContentType("text/plain");
                 Traject t = (Traject) i.next();
                 TanFileParser tfp = new TanFileParser();
-               
+
                 resp.getWriter().println(objectMapper.writeValueAsString(tfp.getTraject(t)));
-             //   resp.getWriter().println(objectMapper.writeValueAsString(t.getEtapes()));
+                //   resp.getWriter().println(objectMapper.writeValueAsString(t.getEtapes()));
                 //resp.getWriter().println(connection.getResponseCode());
             } else {
                 resp.setContentType("text/plain");

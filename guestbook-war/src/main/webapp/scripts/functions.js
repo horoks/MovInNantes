@@ -94,7 +94,7 @@ initialize = function() {
 
     direction = new google.maps.DirectionsRenderer({
         map: map,
-        panel: document.getElementById("panel")
+        panel: document.getElementById("result-display")
     });
 
 
@@ -107,7 +107,6 @@ calculate = function() {
     var travelmode;
     origin = jQuery('#pageslide #origine').val(); // Le point départ
     destination = jQuery('#pageslide #destination').val(); // Le point d'arrivé
-    console.log(origin);
     switch (jQuery('input[name=travelMode]:checked').val()) {
         case "driving" :
             travelmode = google.maps.DirectionsTravelMode.DRIVING;
@@ -118,43 +117,84 @@ calculate = function() {
         case "walking" :
             travelmode = google.maps.DirectionsTravelMode.WALKING;
             break;
+        case "tan":
+            travelmode = "tan";
+            break;
     }
 
     //travelmode = google.maps.DirectionsTravelMode.DRIVING;
     if (origin && destination) {
-        var request = {
-            origin: origin,
-            destination: destination,
-            durationInTraffic: true,
-            travelMode: travelmode // Type de transport
-        };
+        if (travelmode === "tan") {
+            var adressResponse = new Object();
+            adressResponse["depart"] = null;
+            adressResponse["arrive"] = null;
+            jQuery.ajax({
+                url: '/adresstan'
+                        + '?adress='
+                        + jQuery('#pageslide #origine').val(),
+                success: function(data) {
+                    adressResponse.depart = data[0].lieux[0].id;
+                },
+                async: false
+            });
 
-        var directionsService = new google.maps.DirectionsService(); // Service de calcul d'itinéraire
-        directionsService.route(request, function(response, status) { // Envoie de la requête pour calculer le parcours
-            if (status == google.maps.DirectionsStatus.OK) {
-                console.log(response);
-                direction.setOptions({suppressMarkers: true});
-                direction.setDirections(response); // Trace l'itinéraire sur la carte et les différentes étapes du parcours
-                var bounds = response.routes[0].bounds;
-                map.fitBounds(bounds);
-                map.setCenter(bounds.getCenter());
-            }
-        });
+            jQuery.ajax({
+                url: '/adresstan'
+                        + '?adress='
+                        + jQuery('#pageslide #destination').val(),
+                success: function(data) {
+                    adressResponse.arrive = data[0].lieux[0].id;
+                },
+                async: false
+            });
+
+            $.post("/test", {depart: adressResponse.depart, arrive: adressResponse.arrive}, function(data) {
+                setPolylines(data);
+            }, "json");
+        } else {
+            var request = {
+                origin: origin,
+                destination: destination,
+                durationInTraffic: true,
+                travelMode: travelmode // Type de transport
+            };
+
+            var directionsService = new google.maps.DirectionsService(); // Service de calcul d'itinéraire
+            directionsService.route(request, function(response, status) { // Envoie de la requête pour calculer le parcours
+                if (status == google.maps.DirectionsStatus.OK) {
+                    console.log(response);
+                    $.ajax({
+                        type: "POST",
+                        url: "/ParkingServlet",
+                        data: {latitude: response.routes[0].legs[0].end_location.A.toString(), longitude: response.routes[0].legs[0].end_location.k.toString()},
+                        success: function(data) {
+                            for (var i in data) {
+                                ajoutGarage(map, markers, data[i].coordinates.latitude, data[i].coordinates.longitude, data[i].nameParking);
+                            }
+                        },
+                        async: false
+                    })
+
+                    direction.setOptions({suppressMarkers: true});
+                    direction.setDirections(response); // Trace l'itinéraire sur la carte et les différentes étapes du parcours
+                    var bounds = response.routes[0].bounds;
+                    map.fitBounds(bounds);
+                    map.setCenter(bounds.getCenter());
+                }
+            });
+        }
     }
 
 };
 
-function ajoutGarage(map, markers, lat, lng, title, link, adress, post_id, terms, icon, image) {
-    var marker = placeMarker(map, lat, lng, title, terms, icon);
+function ajoutGarage(map, markers, lat, lng, title) {
+    var marker = placeMarker(map, lat, lng, title);
     // Options de la fenêtre
     var windowOptions = {
         content:
                 '<div style="height:120px; min-width:240px;">' +
-                '<div class="col-3">' + image + '</div>' +
                 '<div class="col-9"><span class="garage-name">' + title + '</span><br/>' +
-                '<span class="adress">' + adress + '</span><br/></div>' +
                 '</div>'
-
     };
 
     // Création de la fenêtre
@@ -162,31 +202,20 @@ function ajoutGarage(map, markers, lat, lng, title, link, adress, post_id, terms
 
     // Affichage de la fenêtre au click sur le marker
     google.maps.event.addListener(marker, 'click', function() {
-        document.getElementById('destination').value = marker.position;
-        calculate();
         markers.openWindow(map, marker, infoWindow);
     });
     // Fermeture de la fenêtre au click sur la map
     google.maps.event.addListener(map, 'click', function() {
         markers.closeWindow(map);
     });
-
-    jQuery('.mark_' + post_id).click(function() {
-        document.getElementById('destination').value = marker.position;
-        calculate();
-        adapterZoom(map, markers);
-        markers.openWindow(map, marker, infoWindow);
-    });
-
     markers.created.push(marker);
 }
 
-function placeMarker(map, lat, lng, title, terms, icon) {
+function placeMarker(map, lat, lng, title,  icon) {
     var args = {
         position: new google.maps.LatLng(lat, lng),
         map: map,
         title: title,
-        type: terms
     };
     if (icon != 'default' && icon != '')
         args['icon'] = icon;
@@ -200,15 +229,11 @@ function setPolylines(coordonates) {
     var parcoursBus = new Array();
 
     for (var i in coordonates) {
-        //alert(coordonates[i]);
         for (var j in coordonates[i]) {
             parcoursBus.push(new google.maps.LatLng(coordonates[i][j].lattitude, coordonates[i][j].longitude));
         }
     }
-//new google.maps.LatLng(46.781367900048, 6.6401992834884),
     //chemin du tracé du futur polyline
-
-
     var traceParcoursBus = new google.maps.Polyline({
         path: parcoursBus, //chemin du tracé
         strokeColor: "#FF0000", //couleur du tracé

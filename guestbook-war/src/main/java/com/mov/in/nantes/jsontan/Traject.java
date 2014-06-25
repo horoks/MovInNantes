@@ -5,7 +5,6 @@
  */
 package com.mov.in.nantes.jsontan;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import org.codehaus.jackson.annotate.JsonProperty;
 
